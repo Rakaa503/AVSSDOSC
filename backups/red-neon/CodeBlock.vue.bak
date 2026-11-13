@@ -1,0 +1,245 @@
+﻿<script setup lang="ts">
+import { ref, watch } from 'vue'
+import { codeToHtml } from 'shiki'
+
+interface Props {
+  code: string
+  language?: string
+  filename?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  language: 'typescript',
+  filename: 'example.ts',
+})
+
+const highlightedCode = ref('')
+const copied = ref(false)
+const highlighting = ref(false)
+
+let copyTimeout: ReturnType<typeof setTimeout> | undefined
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+watch(
+  () => [props.code, props.language] as const,
+  async ([code, language]) => {
+    highlighting.value = true
+
+    try {
+      highlightedCode.value = await codeToHtml(code, {
+        lang: language,
+        theme: 'github-dark',
+      })
+    } catch {
+      highlightedCode.value = `<pre class="fallback-code"><code>${escapeHtml(code)}</code></pre>`
+    } finally {
+      highlighting.value = false
+    }
+  },
+  { immediate: true },
+)
+
+async function copyCode() {
+  try {
+    await navigator.clipboard.writeText(props.code)
+
+    copied.value = true
+
+    if (copyTimeout) clearTimeout(copyTimeout)
+
+    copyTimeout = setTimeout(() => {
+      copied.value = false
+    }, 2000)
+  } catch {
+    copied.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="code-block">
+    <div class="code-block-header">
+      <div class="code-block-filename">
+        <span class="code-file-icon">⌘</span>
+        <span>{{ filename }}</span>
+      </div>
+
+      <div class="code-block-actions">
+        <span class="code-language">{{ language }}</span>
+
+        <button
+          class="code-copy-button"
+          type="button"
+          :aria-label="copied ? 'Code copied' : 'Copy code'"
+          @click="copyCode"
+        >
+          <svg
+            v-if="!copied"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <rect x="8" y="8" width="12" height="12" rx="2" />
+            <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" />
+          </svg>
+
+          <svg
+            v-else
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path d="m5 12 4 4L19 6" />
+          </svg>
+
+          <span>{{ copied ? 'Copied!' : 'Copy' }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div
+      class="code-block-body"
+      :class="{ 'is-loading': highlighting }"
+    >
+      <div
+        v-if="highlightedCode"
+        class="code-highlight"
+        v-html="highlightedCode"
+      />
+
+      <pre v-else class="code-loading"><code>{{ code }}</code></pre>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.code-block {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #34303b;
+  border-radius: 13px;
+  background: #241f29;
+  color: #e5e7eb;
+  font-family: 'DM Mono', 'Consolas', monospace;
+}
+
+.code-block-header {
+  min-height: 43px;
+  padding: 0 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #29232e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.code-block-filename,
+.code-block-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.code-block-filename {
+  color: #a8a1b4;
+  font-size: 12px;
+}
+
+.code-file-icon {
+  color: #8b83a0;
+  font-size: 16px;
+}
+
+.code-language {
+  color: #aaa2b7;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  text-transform: lowercase;
+}
+
+.code-copy-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #aaa2b7;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.code-copy-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.code-copy-button svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.code-block-body {
+  overflow-x: auto;
+  padding: 17px 20px 20px;
+}
+
+.code-highlight :deep(pre) {
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  background: transparent !important;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.85;
+  tab-size: 2;
+}
+
+.code-highlight :deep(code) {
+  font-family: inherit;
+}
+
+.code-loading,
+.fallback-code {
+  margin: 0;
+  color: #e5e7eb;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.85;
+  white-space: pre;
+}
+
+.code-block-body :deep(.fallback-code) {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .code-block-header {
+    padding: 0 12px;
+  }
+
+  .code-block-body {
+    padding: 14px;
+  }
+
+  .code-highlight :deep(pre),
+  .code-loading {
+    font-size: 12px;
+  }
+}
+</style>

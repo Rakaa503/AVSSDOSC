@@ -1,0 +1,102 @@
+﻿==================================================
+SOURCE: src\audit\formatter.ts
+==================================================
+import type { AuditEntry } from "./types";
+
+export function formatAudit(entry: AuditEntry): string {
+  const lines: string[] = [];
+
+  lines.push("â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•");
+  lines.push(`ðŸ“‹ ${entry.event}`);
+  lines.push("");
+
+  if (entry.user) {
+    lines.push(`ðŸ‘¤ User  : ${entry.user.name}`);
+    lines.push(`ðŸ†” ID    : ${entry.user.id}`);
+
+    if (entry.user.email) {
+      lines.push(`ðŸ“§ Email : ${entry.user.email}`);
+    }
+
+    if (entry.user.role) {
+      lines.push(`ðŸ›¡ï¸ Role  : ${entry.user.role}`);
+    }
+  }
+
+  if (entry.ip) {
+    lines.push(`ðŸŒ IP    : ${entry.ip}`);
+  }
+
+  if (entry.userAgent) {
+    lines.push(`ðŸ’» Agent : ${entry.userAgent}`);
+  }
+
+  if (entry.message) {
+    lines.push(`ðŸ“ Note  : ${entry.message}`);
+  }
+
+  lines.push(
+    `ðŸ•’ Time  : ${entry.timestamp.toLocaleString()}`
+  );
+
+  lines.push("â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•");
+
+  return lines.join("\n");
+}
+
+==================================================
+SOURCE: src\doctor\doctor.ts
+==================================================
+export interface CheckResult {
+  name: string;
+  success: boolean;
+}
+
+export class Doctor {
+  private results: CheckResult[] = [];
+
+  check(name: string, success: boolean) {
+    this.results.push({
+      name,
+      success,
+    });
+  }
+
+  render() {
+    console.clear();
+
+    console.log("â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—");
+    console.log("â•‘                  AVSS HEALTH CHECK                 â•‘");
+    console.log("â• â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•£");
+
+    for (const item of this.results) {
+      const status = item.success ? "ðŸŸ¢ PASS" : "ðŸ”´ FAIL";
+
+      console.log(
+        `â•‘ ${item.name.padEnd(18)} ${status.padEnd(31)}â•‘`
+      );
+    }
+
+    console.log("â• â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•£");
+
+    const passed = this.results.filter(r => r.success).length;
+    const failed = this.results.length - passed;
+
+    console.log(
+      `â•‘ PASS : ${String(passed).padEnd(42)}â•‘`
+    );
+
+    console.log(
+      `â•‘ FAIL : ${String(failed).padEnd(42)}â•‘`
+    );
+
+    console.log(
+      `â•‘ STATUS : ${(failed === 0 ? "ALL TEST PASSED ðŸŽ‰" : "FAILED âŒ").padEnd(35)}â•‘`
+    );
+
+    console.log("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•");
+  }
+}
+
+export const doctor = new Doctor();
+

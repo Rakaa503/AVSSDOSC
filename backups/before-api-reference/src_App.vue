@@ -1,0 +1,414 @@
+﻿<script setup lang="ts">
+import { computed, ref } from 'vue'
+
+interface NavItem {
+  title: string
+  items: string[]
+}
+
+const navigation: NavItem[] = [
+  {
+    title: 'GETTING STARTED',
+    items: ['Introduction', 'Installation', 'Quick Start'],
+  },
+  {
+    title: 'CORE CONCEPTS',
+    items: ['Architecture', 'Configuration', 'Security Principles'],
+  },
+  {
+    title: 'SECURITY MODULES',
+    items: ['Authentication', 'Password Security', 'Validation', 'Error Handling'],
+  },
+  {
+    title: 'REFERENCE',
+    items: ['API Reference', 'Examples', 'Changelog'],
+  },
+]
+
+const activePage = ref('Introduction')
+const searchQuery = ref('')
+const mobileMenuOpen = ref(false)
+
+const filteredNavigation = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+
+  if (!query) return navigation
+
+  return navigation
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) =>
+        item.toLowerCase().includes(query),
+      ),
+    }))
+    .filter((group) => group.items.length > 0)
+})
+
+const pageDescription = computed(() => {
+  const descriptions: Record<string, string> = {
+    Introduction: 'An overview of AVSS Lite and its documentation.',
+    Installation: 'Learn how to install AVSS Lite in your project.',
+    'Quick Start': 'Get started with the basic AVSS Lite workflow.',
+    Architecture: 'Explore the architecture behind AVSS Lite.',
+    Configuration: 'Understand the available configuration options.',
+    'Security Principles': 'Explore the security principles behind the toolkit.',
+    Authentication: 'Authentication module documentation.',
+    'Password Security': 'Password security module documentation.',
+    Validation: 'Input validation module documentation.',
+    'Error Handling': 'Error handling module documentation.',
+    'API Reference': 'Technical reference for the public API.',
+    Examples: 'Practical implementation examples.',
+    Changelog: 'Version history and project updates.',
+  }
+
+  return descriptions[activePage.value] ?? 'AVSS Lite documentation.'
+})
+
+const pageSections = [
+  { id: 'overview', title: 'Overview' },
+  { id: 'what-is-avss', title: 'What is AVSS Lite?' },
+  { id: 'documentation', title: 'Documentation' },
+  { id: 'next-steps', title: 'Next Steps' },
+]
+
+
+
+function selectPage(page: string) {
+  activePage.value = page
+  mobileMenuOpen.value = false
+  searchQuery.value = ''
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+</script>
+
+<template>
+  <div class="docs-shell">
+    <header class="topbar">
+      <a class="brand" href="#" @click.prevent="selectPage('Introduction')">
+        <div class="brand-mark">
+          <span>A</span>
+        </div>
+
+        <div class="brand-copy">
+          <strong>AVSS<span> Lite</span></strong>
+          <small>DOCUMENTATION</small>
+        </div>
+      </a>
+
+      <div class="topbar-center">
+        <span class="topbar-label">Documentation</span>
+        <span class="topbar-divider">/</span>
+        <span class="topbar-current">{{ activePage }}</span>
+      </div>
+
+      <div class="topbar-actions">
+        <label class="search-box">
+          <span class="search-icon">⌕</span>
+          <input
+            v-model="searchQuery"
+            type="search"
+            placeholder="Search documentation..."
+            aria-label="Search documentation"
+          />
+          <kbd>CTRL K</kbd>
+        </label>
+
+        <span class="version-badge">LITE</span>
+
+        <a
+          class="github-link"
+          href="https://github.com/Rakaa503/Avidev-Security"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="GitHub repository"
+        >
+          ↗
+        </a>
+
+        <button
+          class="mobile-menu-button"
+          type="button"
+          @click="mobileMenuOpen = !mobileMenuOpen"
+          aria-label="Toggle navigation"
+        >
+          ☰
+        </button>
+      </div>
+    </header>
+
+    <div class="docs-layout">
+      <aside class="left-sidebar" :class="{ 'mobile-open': mobileMenuOpen }">
+        <div class="sidebar-heading">
+          <span>DOCUMENTATION</span>
+          <span class="sidebar-version">01</span>
+        </div>
+
+        <div v-if="searchQuery && filteredNavigation.length === 0" class="empty-search">
+          No matching documentation found.
+        </div>
+
+        <nav v-for="group in filteredNavigation" :key="group.title" class="nav-group">
+          <h3>{{ group.title }}</h3>
+
+          <button
+            v-for="item in group.items"
+            :key="item"
+            type="button"
+            class="nav-item"
+            :class="{ active: activePage === item }"
+            @click="selectPage(item)"
+          >
+            <span class="nav-indicator"></span>
+            {{ item }}
+          </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>Documentation workspace</span>
+          </div>
+          <span class="sidebar-caption">BUILT WITH SECURITY IN MIND</span>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="breadcrumb">
+          <span>Docs</span>
+          <span class="breadcrumb-separator">/</span>
+          <span>{{ activePage }}</span>
+        </div>
+
+        <article class="article">
+          <div class="article-eyebrow">
+            <span class="eyebrow-line"></span>
+            AVSS LITE DOCUMENTATION
+          </div>
+
+          <h1>{{ activePage }}</h1>
+
+          <p class="article-lead">
+            {{ pageDescription }}
+          </p>
+
+          <div v-if="activePage === 'Introduction'">
+            <div class="hero-panel">
+              <div class="hero-glow"></div>
+
+              <div class="hero-content">
+                <div class="hero-tag">
+                  <span class="status-dot"></span>
+                  DEVELOPER SECURITY TOOLKIT
+                </div>
+
+                <h2>
+                  Security,<br />
+                  <span>built in.</span>
+                </h2>
+
+                <p>
+                  Building applications should not mean compromising on
+                  security. AVSS Lite is designed to bring security-focused
+                  capabilities closer to your development workflow.
+                </p>
+
+                <div class="hero-actions">
+                  <button
+                    class="primary-button"
+                    type="button"
+                    @click="selectPage('Installation')"
+                  >
+                    Get Started <span>→</span>
+                  </button>
+
+                  <button
+                    class="secondary-button"
+                    type="button"
+                    @click="selectPage('Architecture')"
+                  >
+                    Explore Concepts
+                  </button>
+                </div>
+              </div>
+
+              <div class="hero-decoration" aria-hidden="true">
+                <div class="shield-outer">
+                  <div class="shield-inner">
+                    <span>✓</span>
+                  </div>
+                </div>
+                <div class="orbit orbit-one"></div>
+                <div class="orbit orbit-two"></div>
+                <span class="decoration-label">SECURE BY DESIGN</span>
+              </div>
+            </div>
+
+            <section id="overview" class="content-section">
+              <div class="section-heading">
+                <span class="section-number">01</span>
+                <h2>Overview</h2>
+              </div>
+
+              <p>
+                Welcome to the official AVSS Lite documentation. This
+                documentation is intended to help developers understand the
+                project, explore its capabilities, and integrate its features
+                into their applications.
+              </p>
+            </section>
+
+            <section id="what-is-avss" class="content-section">
+              <div class="section-heading">
+                <span class="section-number">02</span>
+                <h2>What is AVSS Lite?</h2>
+              </div>
+
+              <p>
+                AVSS Lite is a security-focused developer toolkit. Its
+                implementation details, available modules, and public
+                interfaces will be documented based on the actual project
+                source code.
+              </p>
+
+              <div class="info-callout">
+                <span class="callout-icon">i</span>
+                <div>
+                  <strong>Documentation status</strong>
+                  <p>
+                    This documentation interface is under development.
+                    Technical references will be verified against the
+                    corresponding source code before publication.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section id="documentation" class="content-section">
+              <div class="section-heading">
+                <span class="section-number">03</span>
+                <h2>Documentation</h2>
+              </div>
+
+              <p>
+                Use the navigation menu to explore the documentation
+                categories. Each section will provide relevant explanations,
+                configuration guidance, and implementation references.
+              </p>
+
+              <div class="feature-grid">
+                <button
+                  class="feature-card"
+                  type="button"
+                  @click="selectPage('Installation')"
+                >
+                  <span class="feature-icon">01</span>
+                  <strong>Getting Started</strong>
+                  <span>Installation and initial setup.</span>
+                  <span class="feature-arrow">↗</span>
+                </button>
+
+                <button
+                  class="feature-card"
+                  type="button"
+                  @click="selectPage('Architecture')"
+                >
+                  <span class="feature-icon">02</span>
+                  <strong>Core Concepts</strong>
+                  <span>Architecture and design principles.</span>
+                  <span class="feature-arrow">↗</span>
+                </button>
+
+                <button
+                  class="feature-card"
+                  type="button"
+                  @click="selectPage('Authentication')"
+                >
+                  <span class="feature-icon">03</span>
+                  <strong>Security Modules</strong>
+                  <span>Explore security-related modules.</span>
+                  <span class="feature-arrow">↗</span>
+                </button>
+              </div>
+            </section>
+
+            <section id="next-steps" class="content-section next-section">
+              <div class="section-heading">
+                <span class="section-number">04</span>
+                <h2>Next Steps</h2>
+              </div>
+
+              <p>
+                Ready to explore AVSS Lite? Start with the installation
+                documentation and continue through the available guides.
+              </p>
+
+              <button
+                class="primary-button"
+                type="button"
+                @click="selectPage('Installation')"
+              >
+                Read Installation Guide <span>→</span>
+              </button>
+            </section>
+          </div>
+
+          <div v-else class="placeholder-panel">
+            <div class="placeholder-icon">⌘</div>
+            <h2>{{ activePage }}</h2>
+            <p>
+              This documentation section is part of the planned AVSS Lite
+              documentation structure.
+            </p>
+            <p class="placeholder-note">
+              Technical content will be added after verification against the
+              actual AVSS Lite implementation.
+            </p>
+            <button
+              class="secondary-button"
+              type="button"
+              @click="selectPage('Introduction')"
+            >
+              ← Back to Introduction
+            </button>
+          </div>
+
+          <footer class="article-footer">
+            <span>AVSS LITE DOCUMENTATION</span>
+            <span>SECURITY, BUILT IN.</span>
+          </footer>
+        </article>
+      </main>
+
+      <aside class="right-sidebar">
+        <div class="toc-container">
+          <h3>ON THIS PAGE</h3>
+
+          <template v-if="activePage === 'Introduction'">
+            <a
+              v-for="section in pageSections"
+              :key="section.id"
+              :href="`#${section.id}`"
+              class="toc-link"
+            >
+              {{ section.title }}
+            </a>
+          </template>
+
+          <span v-else class="toc-empty">
+            No sections available yet.
+          </span>
+        </div>
+
+        <div class="right-sidebar-bottom">
+          <div class="help-card">
+            <span class="help-icon">✳</span>
+            <strong>Security first.</strong>
+            <p>Build with security in mind from the beginning.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</template>
+
+

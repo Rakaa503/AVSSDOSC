@@ -1,0 +1,1085 @@
+﻿<script setup lang="ts">
+import { computed, ref } from 'vue'
+import ApiReference from './components/ApiReference.vue'
+
+interface NavItem {
+  title: string
+  items: string[]
+}
+
+const navigation: NavItem[] = [
+  {
+    title: 'GETTING STARTED',
+    items: ['Introduction', 'Installation', 'Quick Start'],
+  },
+  {
+    title: 'CORE CONCEPTS',
+    items: ['Architecture', 'Configuration', 'Security Principles'],
+  },
+  {
+    title: 'SECURITY MODULES',
+    items: ['Authentication', 'Password Security', 'Validation', 'Error Handling'],
+  },
+  {
+    title: 'REFERENCE',
+    items: ['API Reference', 'Examples', 'Changelog'],
+  },
+]
+
+const activePage = ref('Introduction')
+const searchQuery = ref('')
+const mobileMenuOpen = ref(false)
+
+const filteredNavigation = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+
+  if (!query) return navigation
+
+  return navigation
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) =>
+        item.toLowerCase().includes(query),
+      ),
+    }))
+    .filter((group) => group.items.length > 0)
+})
+
+const pageDescription = computed(() => {
+  const descriptions: Record<string, string> = {
+    Introduction: 'An overview of AVSS Lite and its documentation.',
+    Installation: 'Learn how to install AVSS Lite in your project.',
+    'Quick Start': 'Get started with the basic AVSS Lite workflow.',
+    Architecture: 'Explore the architecture behind AVSS Lite.',
+    Configuration: 'Understand the available configuration options.',
+    'Security Principles': 'Explore the security principles behind the toolkit.',
+    Authentication: 'Authentication module documentation.',
+    'Password Security': 'Password security module documentation.',
+    Validation: 'Input validation module documentation.',
+    'Error Handling': 'Error handling module documentation.',
+    'API Reference': 'Technical reference for the public API.',
+    Examples: 'Practical implementation examples.',
+    Changelog: 'Version history and project updates.',
+  }
+
+  return descriptions[activePage.value] ?? 'AVSS Lite documentation.'
+})
+
+const pageSections = [
+  { id: 'overview', title: 'Overview' },
+  { id: 'what-is-avss', title: 'What is AVSS Lite?' },
+  { id: 'documentation', title: 'Documentation' },
+  { id: 'next-steps', title: 'Next Steps' },
+]
+
+
+
+function selectPage(page: string) {
+  activePage.value = page
+  mobileMenuOpen.value = false
+  searchQuery.value = ''
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+</script>
+
+<template>
+  <div class="docs-shell">
+    <header class="topbar">
+      <a class="brand" href="#" @click.prevent="selectPage('Introduction')">
+        <div class="brand-mark">
+          <span>A</span>
+        </div>
+
+        <div class="brand-copy">
+          <strong>AVSS<span> Lite</span></strong>
+          <small>DOCUMENTATION</small>
+        </div>
+      </a>
+
+      <div class="topbar-center">
+        <span class="topbar-label">Documentation</span>
+        <span class="topbar-divider">/</span>
+        <span class="topbar-current">{{ activePage }}</span>
+      </div>
+
+      <div class="topbar-actions">
+        <label class="search-box">
+          <span class="search-icon">âŒ•</span>
+          <input
+            v-model="searchQuery"
+            type="search"
+            placeholder="Search documentation..."
+            aria-label="Search documentation"
+          />
+          <kbd>CTRL K</kbd>
+        </label>
+
+        <span class="version-badge">LITE</span>
+
+        <a
+          class="github-link"
+          href="https://github.com/Rakaa503/Avidev-Security"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="GitHub repository"
+        >
+          â†—
+        </a>
+
+        <button
+          class="mobile-menu-button"
+          type="button"
+          @click="mobileMenuOpen = !mobileMenuOpen"
+          aria-label="Toggle navigation"
+        >
+          â˜°
+        </button>
+      </div>
+    </header>
+
+    <div class="docs-layout">
+      <aside class="left-sidebar" :class="{ 'mobile-open': mobileMenuOpen }">
+        <div class="sidebar-heading">
+          <span>DOCUMENTATION</span>
+          <span class="sidebar-version">01</span>
+        </div>
+
+        <div v-if="searchQuery && filteredNavigation.length === 0" class="empty-search">
+          No matching documentation found.
+        </div>
+
+        <nav v-for="group in filteredNavigation" :key="group.title" class="nav-group">
+          <h3>{{ group.title }}</h3>
+
+          <button
+            v-for="item in group.items"
+            :key="item"
+            type="button"
+            class="nav-item"
+            :class="{ active: activePage === item }"
+            @click="selectPage(item)"
+          >
+            <span class="nav-indicator"></span>
+            {{ item }}
+          </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>Documentation workspace</span>
+          </div>
+          <span class="sidebar-caption">BUILT WITH SECURITY IN MIND</span>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="breadcrumb">
+          <span>Docs</span>
+          <span class="breadcrumb-separator">/</span>
+          <span>{{ activePage }}</span>
+        </div>
+
+        <article class="article">
+          <div class="article-eyebrow">
+            <span class="eyebrow-line"></span>
+            AVSS LITE DOCUMENTATION
+          </div>
+
+          <h1>{{ activePage }}</h1>
+
+          <p class="article-lead">
+            {{ pageDescription }}
+          </p>
+
+          <div v-if="activePage === 'Introduction'">
+            <div class="hero-panel">
+              <div class="hero-glow"></div>
+
+              <div class="hero-content">
+                <div class="hero-tag">
+                  <span class="status-dot"></span>
+                  DEVELOPER SECURITY TOOLKIT
+                </div>
+
+                <h2>
+                  Security,<br />
+                  <span>built in.</span>
+                </h2>
+
+                <p>
+                  Building applications should not mean compromising on
+                  security. AVSS Lite is designed to bring security-focused
+                  capabilities closer to your development workflow.
+                </p>
+
+                <div class="hero-actions">
+                  <button
+                    class="primary-button"
+                    type="button"
+                    @click="selectPage('Installation')"
+                  >
+                    Get Started <span>â†’</span>
+                  </button>
+
+                  <button
+                    class="secondary-button"
+                    type="button"
+                    @click="selectPage('Architecture')"
+                  >
+                    Explore Concepts
+                  </button>
+                </div>
+              </div>
+
+              <div class="hero-decoration" aria-hidden="true">
+                <div class="shield-outer">
+                  <div class="shield-inner">
+                    <span>âœ“</span>
+                  </div>
+                </div>
+                <div class="orbit orbit-one"></div>
+                <div class="orbit orbit-two"></div>
+                <span class="decoration-label">SECURE BY DESIGN</span>
+              </div>
+            </div>
+
+            <section id="overview" class="content-section">
+              <div class="section-heading">
+                <span class="section-number">01</span>
+                <h2>Overview</h2>
+              </div>
+
+              <p>
+                Welcome to the official AVSS Lite documentation. This
+                documentation is intended to help developers understand the
+                project, explore its capabilities, and integrate its features
+                into their applications.
+              </p>
+            </section>
+
+            <section id="what-is-avss" class="content-section">
+              <div class="section-heading">
+                <span class="section-number">02</span>
+                <h2>What is AVSS Lite?</h2>
+              </div>
+
+              <p>
+                AVSS Lite is a security-focused developer toolkit. Its
+                implementation details, available modules, and public
+                interfaces will be documented based on the actual project
+                source code.
+              </p>
+
+              <div class="info-callout">
+                <span class="callout-icon">i</span>
+                <div>
+                  <strong>Documentation status</strong>
+                  <p>
+                    This documentation interface is under development.
+                    Technical references will be verified against the
+                    corresponding source code before publication.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section id="documentation" class="content-section">
+              <div class="section-heading">
+                <span class="section-number">03</span>
+                <h2>Documentation</h2>
+              </div>
+
+              <p>
+                Use the navigation menu to explore the documentation
+                categories. Each section will provide relevant explanations,
+                configuration guidance, and implementation references.
+              </p>
+
+              <div class="feature-grid">
+                <button
+                  class="feature-card"
+                  type="button"
+                  @click="selectPage('Installation')"
+                >
+                  <span class="feature-icon">01</span>
+                  <strong>Getting Started</strong>
+                  <span>Installation and initial setup.</span>
+                  <span class="feature-arrow">â†—</span>
+                </button>
+
+                <button
+                  class="feature-card"
+                  type="button"
+                  @click="selectPage('Architecture')"
+                >
+                  <span class="feature-icon">02</span>
+                  <strong>Core Concepts</strong>
+                  <span>Architecture and design principles.</span>
+                  <span class="feature-arrow">â†—</span>
+                </button>
+
+                <button
+                  class="feature-card"
+                  type="button"
+                  @click="selectPage('Authentication')"
+                >
+                  <span class="feature-icon">03</span>
+                  <strong>Security Modules</strong>
+                  <span>Explore security-related modules.</span>
+                  <span class="feature-arrow">â†—</span>
+                </button>
+              </div>
+            </section>
+
+            <section id="next-steps" class="content-section next-section">
+              <div class="section-heading">
+                <span class="section-number">04</span>
+                <h2>Next Steps</h2>
+              </div>
+
+              <p>
+                Ready to explore AVSS Lite? Start with the installation
+                documentation and continue through the available guides.
+              </p>
+
+              <button
+                class="primary-button"
+                type="button"
+                @click="selectPage('Installation')"
+              >
+                Read Installation Guide <span>â†’</span>
+              </button>
+            </section>
+          </div>
+
+          <ApiReference v-else-if="activePage === 'API Reference'" />
+
+<div v-else-if="activePage === 'Installation'" class="installation-guide">
+
+  <section id="installation-prerequisites" class="installation-section">
+    <div class="installation-section-heading">
+      <span class="installation-number">01</span>
+      <div>
+        <span class="installation-label">BEFORE YOU START</span>
+        <h2>Prerequisites</h2>
+      </div>
+    </div>
+
+    <p class="installation-description">
+      Before installing AVSS Lite, make sure your development environment is ready.
+    </p>
+
+    <div class="installation-requirements">
+      <div class="installation-requirement">
+        <span class="installation-check">âœ“</span>
+        <div>
+          <strong>Bun Runtime</strong>
+          <p>Bun must be installed and available in your terminal.</p>
+          <a href="https://bun.sh/docs/installation" target="_blank" rel="noopener noreferrer">
+            Bun installation guide â†—
+          </a>
+        </div>
+      </div>
+
+      <div class="installation-requirement">
+        <span class="installation-check">âœ“</span>
+        <div>
+          <strong>Project Directory</strong>
+          <p>Open the root directory of the application where you want to install AVSS Lite.</p>
+        </div>
+      </div>
+
+      <div class="installation-requirement">
+        <span class="installation-check">âœ“</span>
+        <div>
+          <strong>GitHub Access</strong>
+          <p>Make sure your environment can access the official AVSS Lite repository.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="installation-install" class="installation-section">
+    <div class="installation-section-heading">
+      <span class="installation-number">02</span>
+      <div>
+        <span class="installation-label">PACKAGE INSTALLATION</span>
+        <h2>Install AVSS Lite</h2>
+      </div>
+    </div>
+
+    <p class="installation-description">
+      AVSS Lite is distributed directly through its official GitHub repository.
+      Use Bun to add the package to your project. A separate git clone is not required.
+    </p>
+
+    <div class="installation-command-card">
+      <div class="installation-command-header">
+        <div>
+          <span class="installation-terminal-dot"></span>
+          <strong>Terminal</strong>
+        </div>
+        <span class="installation-command-tag">BUN</span>
+      </div>
+
+      <pre class="installation-code"><code>bun add github:Rakaa503/Avidev-Security</code></pre>
+
+      <div class="installation-command-footer">
+        <span>Run this command from your project root.</span>
+        <a href="https://github.com/Rakaa503/Avidev-Security" target="_blank" rel="noopener noreferrer">
+          View repository â†—
+        </a>
+      </div>
+    </div>
+
+    <div class="installation-info">
+      <span>i</span>
+      <p>
+        Bun downloads AVSS Lite from GitHub and adds it to your project's dependencies.
+        The package import name is <code>avss-lite-Raka503</code>.
+      </p>
+    </div>
+  </section>
+
+  <section id="installation-verify" class="installation-section">
+    <div class="installation-section-heading">
+      <span class="installation-number">03</span>
+      <div>
+        <span class="installation-label">INSTALLATION CHECK</span>
+        <h2>Verify Installation</h2>
+      </div>
+    </div>
+
+    <p class="installation-description">
+      After installation, check your project's dependency list to confirm that
+      AVSS Lite has been added.
+    </p>
+
+    <div class="installation-command-card">
+      <div class="installation-command-header">
+        <strong>Terminal</strong>
+        <span class="installation-command-tag">VERIFY</span>
+      </div>
+      <pre class="installation-code"><code>bun pm ls</code></pre>
+      <div class="installation-command-footer">
+        <span>Inspect the installed project dependencies.</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="installation-import" class="installation-section">
+    <div class="installation-section-heading">
+      <span class="installation-number">04</span>
+      <div>
+        <span class="installation-label">PUBLIC API</span>
+        <h2>Import the Package</h2>
+      </div>
+    </div>
+
+    <p class="installation-description">
+      Import the public modules from the AVSS Lite root entry point.
+      The following example demonstrates the package import structure.
+    </p>
+
+    <div class="installation-command-card">
+      <div class="installation-command-header">
+        <strong>TypeScript</strong>
+        <span class="installation-command-tag">IMPORT</span>
+      </div>
+      <pre class="installation-code"><code>import {
+  validate,
+  logger,
+  createSecurity,
+} from 'avss-lite-Raka503'</code></pre>
+    </div>
+
+    <div class="installation-command-card installation-secondary-code">
+      <div class="installation-command-header">
+        <strong>Security Subpath</strong>
+        <span class="installation-command-tag">OPTIONAL</span>
+      </div>
+      <pre class="installation-code"><code>import { createSecurity } from 'avss-lite-Raka503/security'</code></pre>
+    </div>
+
+    <div class="installation-info">
+      <span>i</span>
+      <p>
+        Use the root entry point for the package's public modules or the dedicated
+        security subpath for security-related exports.
+      </p>
+    </div>
+  </section>
+
+  <section id="installation-next" class="installation-section installation-next">
+    <span class="installation-label">YOU ARE READY</span>
+    <h2>Installation Complete.</h2>
+    <p>
+      AVSS Lite is now ready to be explored in your project.
+      Continue to Quick Start to learn the next steps.
+    </p>
+
+    <button
+      class="primary-button installation-next-button"
+      type="button"
+      @click="selectPage('Quick Start')"
+    >
+      Continue to Quick Start <span>â†’</span>
+    </button>
+  </section>
+
+</div>
+
+<div v-else-if="activePage === 'Quick Start'" class="quick-start-page">
+
+  <section id="quick-start-overview" class="quick-start-section">
+    <span class="quick-start-label">GETTING STARTED</span>
+    <h2>Build your first integration.</h2>
+    <p>
+      Learn the essential AVSS Lite workflow, from importing the toolkit
+      to validating input, initializing security, and logging application events.
+    </p>
+  </section>
+
+  <section id="quick-start-requirements" class="quick-start-section">
+    <h2>1. Requirements</h2>
+    <ul>
+      <li>Node.js 22+ or Bun installed.</li>
+      <li>A TypeScript-compatible project.</li>
+      <li>Access to the AVSS Lite GitHub repository.</li>
+    </ul>
+  </section>
+
+  <section id="quick-start-install" class="quick-start-section">
+    <h2>2. Install AVSS Lite</h2>
+    <p>Install the package using Bun:</p>
+    <CodeBlock language="bash" :code="'bun add github:Rakaa503/Avidev-Security'" />
+  </section>
+
+  <section id="quick-start-import" class="quick-start-section">
+    <h2>3. Import the toolkit</h2>
+    <p>Import the utilities from the package root.</p>
+    <CodeBlock language="typescript" :code="`import { validate, validateOrThrow, logger, createSecurity } from 'avss-lite-Raka503';
+import { z } from 'zod';`" />
+  </section>
+
+  <section id="quick-start-validation" class="quick-start-section">
+    <h2>4. Validate input</h2>
+    <p>
+      AVSS Lite provides validate() for safe parsing and
+      validateOrThrow() for exception-based validation.
+    </p>
+    <CodeBlock language="typescript" :code="`import { z } from 'zod';
+import { validate } from 'avss-lite-Raka503';
+
+const userSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+});
+
+const result = validate(userSchema, {
+  name: 'Rakha',
+  email: 'rakha@example.com',
+});
+
+if (result.success) {
+  console.log(result.data);
+} else {
+  console.error(result.errors);
+}`" />
+  </section>
+
+  <section id="quick-start-security" class="quick-start-section">
+    <h2>5. Initialize security</h2>
+    <p>
+      Create a SecurityFramework instance. The framework exposes
+      CSRF, XSS, security headers, CORS, cookies, proxy, and rate-limit utilities.
+    </p>
+    <CodeBlock language="typescript" :code="`import { createSecurity } from 'avss-lite-Raka503';
+
+const security = createSecurity();
+
+console.log(security.csrf);
+console.log(security.xss);
+console.log(security.headers);
+console.log(security.cors);
+console.log(security.cookies);
+console.log(security.proxy);
+console.log(security.rateLimit);`" />
+  </section>
+
+  <section id="quick-start-logger" class="quick-start-section">
+    <h2>6. Log application events</h2>
+    <p>Use the built-in logger singleton.</p>
+    <CodeBlock language="typescript" :code="`import { logger } from 'avss-lite-Raka503';
+
+logger.info('Application started');
+logger.success('Operation completed');
+logger.security('Security event detected');
+logger.database('Database operation executed');
+logger.error('Unexpected error occurred');`" />
+  </section>
+
+  <section id="quick-start-run" class="quick-start-section">
+    <h2>7. Run your application</h2>
+    <CodeBlock language="bash" :code="'bun run src/index.ts'" />
+    <p>Verify the output in your terminal.</p>
+  </section>
+
+  <section id="quick-start-next" class="quick-start-section quick-start-next">
+    <span class="quick-start-label">NEXT STEP</span>
+    <h2>Understand the architecture.</h2>
+    <p>
+      Explore how AVSS Lite organizes its core utilities and security modules.
+    </p>
+    <button class="primary-button" type="button"
+      @click="selectPage('Architecture')">
+      Explore Architecture <span>→</span>
+    </button>
+  </section>
+
+</div>
+
+
+          <div v-else-if="activePage === 'Configuration'" class="configuration-page">
+
+  <section id="configuration-overview" class="configuration-section configuration-intro">
+    <span class="configuration-eyebrow">CONFIGURATION GUIDE</span>
+    <h2>Configure your security foundation.</h2>
+    <p>
+      Learn how AVSS Lite reads environment variables, initializes
+      security utilities, and manages its database client.
+    </p>
+    <div class="configuration-callout">
+      <strong>Configuration approach</strong>
+      <span>
+        Environment validation, modular security configuration,
+        and a reusable Prisma client.
+      </span>
+    </div>
+  </section>
+
+  <section id="configuration-environment" class="configuration-section">
+    <div class="configuration-heading">
+      <span>01</span>
+      <div>
+        <label>ENVIRONMENT</label>
+        <h2>Environment Variables</h2>
+        <p>
+          AVSS Lite validates environment variables with a Zod schema
+          through validateEnv().
+        </p>
+      </div>
+    </div>
+
+    <div class="configuration-table">
+      <div class="configuration-table-row configuration-table-header">
+        <span>Variable</span><span>Validation</span><span>Required</span>
+      </div>
+      <div class="configuration-table-row">
+        <code>NODE_ENV</code><span>development, production, test</span><b>Default: development</b>
+      </div>
+      <div class="configuration-table-row">
+        <code>DATABASE_URL</code><span>Non-empty string</span><b>Yes</b>
+      </div>
+      <div class="configuration-table-row">
+        <code>BETTER_AUTH_SECRET</code><span>Minimum 32 characters</span><b>Yes</b>
+      </div>
+      <div class="configuration-table-row">
+        <code>BETTER_AUTH_URL</code><span>Valid URL</span><b>Yes</b>
+      </div>
+    </div>
+
+    <h3 class="configuration-subtitle">Example .env</h3>
+    <CodeBlock language="bash" :code="`NODE_ENV=development
+DATABASE_URL=&quot;postgresql://user:password@localhost:5432/mydb&quot;
+BETTER_AUTH_SECRET=&quot;replace-with-at-least-32-characters&quot;
+BETTER_AUTH_URL=&quot;http://localhost:3000&quot;`" />
+
+    <h3 class="configuration-subtitle">Validate environment</h3>
+    <CodeBlock language="typescript" :code="`import { validateEnv } from 'avss-lite-Raka503';
+
+const env = validateEnv();
+
+console.log(env.NODE_ENV);
+console.log(env.DATABASE_URL);
+console.log(env.BETTER_AUTH_URL);`" />
+
+    <p class="configuration-note">
+      The schema uses Zod parsing. Invalid or missing required values
+      cause validation to throw instead of returning an invalid Env object.
+    </p>
+  </section>
+
+  <section id="configuration-security" class="configuration-section">
+    <div class="configuration-heading">
+      <span>02</span>
+      <div>
+        <label>SECURITY FRAMEWORK</label>
+        <h2>Security Configuration</h2>
+        <p>
+          Pass a SecurityConfig object to createSecurity().
+          Every top-level module configuration is optional.
+        </p>
+      </div>
+    </div>
+
+    <CodeBlock language="typescript" :code="`import { createSecurity } from 'avss-lite-Raka503';
+
+const security = createSecurity({
+  csrf: {},
+  xss: {},
+  headers: {},
+  cors: {},
+  cookies: {},
+  proxy: {},
+  rateLimit: {},
+});`" />
+
+    <div class="configuration-module-grid">
+      <article><strong>csrf</strong><span>CSRF protection configuration</span></article>
+      <article><strong>xss</strong><span>XSS sanitization configuration</span></article>
+      <article><strong>headers</strong><span>Security headers configuration</span></article>
+      <article><strong>cors</strong><span>Cross-origin resource sharing configuration</span></article>
+      <article><strong>cookies</strong><span>Cookie handling configuration</span></article>
+      <article><strong>proxy</strong><span>Trusted proxy configuration</span></article>
+      <article><strong>rateLimit</strong><span>Rate limiting configuration</span></article>
+    </div>
+
+    <p class="configuration-note">
+      The example above illustrates the available configuration structure.
+      Empty objects do not customize module behavior. Refer to each module's
+      configuration type for its supported properties and defaults.
+    </p>
+  </section>
+
+  <section id="configuration-initialization" class="configuration-section">
+    <div class="configuration-heading">
+      <span>03</span>
+      <div>
+        <label>INITIALIZATION</label>
+        <h2>Security Initialization</h2>
+        <p>
+          SecurityFramework receives the configuration in its constructor.
+          The createSecurity() factory provides the package entry point.
+        </p>
+      </div>
+    </div>
+
+    <CodeBlock language="typescript" :code="`import { createSecurity } from 'avss-lite-Raka503';
+
+const security = createSecurity();
+
+console.log(security.csrf);
+console.log(security.xss);
+console.log(security.headers);
+console.log(security.cors);
+console.log(security.cookies);
+console.log(security.proxy);
+console.log(security.rateLimit);`" />
+
+    <div class="configuration-callout">
+      <strong>Important</strong>
+      <span>
+        createSecurity(config) calls setSecurityConfig(config).
+        Initialize it with the intended configuration before using
+        the security utilities.
+      </span>
+    </div>
+  </section>
+
+  <section id="configuration-database" class="configuration-section">
+    <div class="configuration-heading">
+      <span>04</span>
+      <div>
+        <label>DATABASE</label>
+        <h2>Prisma Client</h2>
+        <p>
+          AVSS Lite exposes a reusable PrismaClient singleton.
+          In non-production environments, the instance is stored globally.
+        </p>
+      </div>
+    </div>
+
+    <CodeBlock language="typescript" :code="`import { prisma } from 'avss-lite-Raka503';
+
+// Reuse the exported Prisma client
+const result = await prisma.$queryRaw\`SELECT 1\`;
+
+console.log(result);`" />
+
+    <p class="configuration-note">
+      The Prisma client is initialized by the package.
+      Its connection configuration is handled through the Prisma
+      datasource and environment setup. DATABASE_URL is validated
+      by the environment schema.
+    </p>
+  </section>
+
+  <section id="configuration-next" class="configuration-section configuration-next">
+    <span class="configuration-eyebrow">NEXT STEP</span>
+    <h2>Explore security principles.</h2>
+    <p>Understand the security modules and the protection concepts behind AVSS Lite.</p>
+    <button class="primary-button" type="button"
+      @click="selectPage('Security Principles')">
+      Explore Security Principles <span>→</span>
+    </button>
+  </section>
+
+</div>
+<div v-else-if="activePage === 'Architecture'" class="architecture-page">
+
+            <section id="architecture-overview" class="architecture-section">
+              <span class="architecture-eyebrow">SYSTEM OVERVIEW</span>
+              <h2>Built for modern TypeScript applications.</h2>
+              <p>AVSS Lite is a modular security toolkit designed for modern TypeScript development workflows.</p>
+
+              <div class="architecture-highlight">
+                <div class="architecture-brand-mark">A</div>
+                <div>
+                  <strong>AVSS Lite</strong>
+                  <span>Security toolkit · TypeScript · Modular architecture</span>
+                </div>
+                <small>VERSION 1.0.2</small>
+              </div>
+            </section>
+
+            <section id="architecture-core" class="architecture-section">
+              <div class="architecture-heading">
+                <span>01</span>
+                <div>
+                  <label>FOUNDATION</label>
+                  <h2>Core Technology Stack</h2>
+                  <p>Core technologies used throughout the toolkit.</p>
+                </div>
+              </div>
+
+              <div class="architecture-stack-grid">
+                <article class="architecture-stack-card">
+                  <img src="https://cdn.simpleicons.org/typescript/3178C6" alt="TypeScript">
+                  <h3>TypeScript</h3>
+                  <p>Primary development language and type system.</p>
+                  <small>CORE LANGUAGE</small>
+                </article>
+
+                <article class="architecture-stack-card">
+                  <img src="https://cdn.simpleicons.org/bun/FBF0DF" alt="Bun">
+                  <h3>Bun</h3>
+                  <p>Runtime and package manager compatibility.</p>
+                  <small>RUNTIME</small>
+                </article>
+
+                <article class="architecture-stack-card">
+                  <img src="https://cdn.simpleicons.org/nodedotjs/5FA04E" alt="Node.js">
+                  <h3>Node.js</h3>
+                  <p>JavaScript runtime environment.</p>
+                  <small>RUNTIME</small>
+                </article>
+
+                <article class="architecture-stack-card">
+                  <img src="https://cdn.simpleicons.org/zod/3E67B1" alt="Zod">
+                  <h3>Zod</h3>
+                  <p>Schema-based input validation.</p>
+                  <small>VALIDATION</small>
+                </article>
+
+                <article class="architecture-stack-card">
+                  <img src="https://cdn.simpleicons.org/prisma/FFFFFF" alt="Prisma">
+                  <h3>Prisma</h3>
+                  <p>Database ORM and client integration.</p>
+                  <small>DATABASE TOOLING</small>
+                </article>
+
+                <article class="architecture-stack-card">
+                  <img src="https://cdn.simpleicons.org/postgresql/4169E1" alt="PostgreSQL">
+                  <h3>PostgreSQL</h3>
+                  <p>Relational database option for Prisma applications.</p>
+                  <small>DATABASE</small>
+                </article>
+              </div>
+            </section>
+
+            <section id="architecture-frameworks" class="architecture-section">
+              <div class="architecture-heading">
+                <span>02</span>
+                <div>
+                  <label>ECOSYSTEM</label>
+                  <h2>Framework Compatibility</h2>
+                  <p>Framework ecosystems to explore when integrating AVSS Lite.</p>
+                </div>
+              </div>
+
+              <div class="architecture-framework-grid">
+                <article class="architecture-framework-card">
+                  <img src="https://cdn.simpleicons.org/elysia/FFFFFF" alt="Elysia">
+                  <div><h3>Elysia</h3><p>TypeScript-first backend framework.</p></div>
+                  <small>ECOSYSTEM</small>
+                </article>
+
+                <article class="architecture-framework-card">
+                  <img src="https://cdn.simpleicons.org/hono/E36002" alt="Hono">
+                  <div><h3>Hono</h3><p>Lightweight web framework for APIs.</p></div>
+                  <small>ECOSYSTEM</small>
+                </article>
+
+                <article class="architecture-framework-card">
+                  <img src="https://cdn.simpleicons.org/astro/FF5D01" alt="Astro">
+                  <div><h3>Astro</h3><p>Modern web application framework.</p></div>
+                  <small>ECOSYSTEM</small>
+                </article>
+
+                <article class="architecture-framework-card">
+                  <img src="https://cdn.simpleicons.org/nestjs/E0234E" alt="NestJS">
+                  <div><h3>NestJS</h3><p>Progressive Node.js framework for scalable server-side applications.</p></div>
+                  <small>ECOSYSTEM</small>
+                </article>
+
+                <article class="architecture-framework-card">
+                  <img src="https://cdn.simpleicons.org/express/FFFFFF" alt="Express">
+                  <div><h3>Express</h3><p>Minimal Node.js web framework.</p></div>
+                  <small>ECOSYSTEM</small>
+                </article>
+
+                <article class="architecture-framework-card">
+                  <img src="https://cdn.simpleicons.org/fastify/FFFFFF" alt="Fastify">
+                  <div><h3>Fastify</h3><p>Performance-focused Node.js framework.</p></div>
+                  <small>ECOSYSTEM</small>
+                </article>
+              </div>
+
+              <div class="architecture-notice">
+                <strong>i</strong>
+                <p>These frameworks represent potential integration targets. Dedicated adapters, middleware, and officially tested integrations must be verified individually.</p>
+              </div>
+            </section>
+
+            <section id="architecture-modules" class="architecture-section">
+              <div class="architecture-heading">
+                <span>03</span>
+                <div>
+                  <label>INTERNAL DESIGN</label>
+                  <h2>Modular Architecture</h2>
+                  <p>Focused modules organized around the central package.</p>
+                </div>
+              </div>
+
+              <div class="architecture-core-box">
+                <small>CORE PACKAGE</small>
+                <strong>avss-lite-Raka503</strong>
+                <span>Central package entry point</span>
+              </div>
+
+              <div class="architecture-module-grid">
+                <div><strong>Security</strong><span>CSRF · XSS · Headers · CORS</span></div>
+                <div><strong>Validation</strong><span>Schema validation</span></div>
+                <div><strong>Logger</strong><span>Application logging</span></div>
+                <div><strong>Environment</strong><span>Environment validation</span></div>
+                <div><strong>Prisma</strong><span>Database client</span></div>
+                <div><strong>Audit & Events</strong><span>Audit and event handling</span></div>
+                <div><strong>Errors</strong><span>Error utilities</span></div>
+                <div><strong>Terminal & Doctor</strong><span>CLI and diagnostics</span></div>
+              </div>
+            </section>
+
+            <section id="architecture-tooling" class="architecture-section">
+              <div class="architecture-heading">
+                <span>04</span>
+                <div>
+                  <label>DEVELOPER EXPERIENCE</label>
+                  <h2>Development Tooling</h2>
+                  <p>Tools used in the development workflow.</p>
+                </div>
+              </div>
+
+              <div class="architecture-tool-list">
+                <span>TypeScript</span>
+                <span>Vitest</span>
+                <span>tsup</span>
+                <span>Git</span>
+                <span>Bun</span>
+                <span>npm</span>
+              </div>
+            </section>
+
+          </div>
+          <footer class="article-footer">
+            <span>AVSS LITE DOCUMENTATION</span>
+            <span>SECURITY, BUILT IN.</span>
+          </footer>
+        </article>
+      </main>
+
+      <aside class="right-sidebar">
+        <div class="toc-container">
+          <h3>ON THIS PAGE</h3>
+
+          <template v-if="activePage === 'Introduction'">
+            <a
+              v-for="section in pageSections"
+              :key="section.id"
+              :href="`#${section.id}`"
+              class="toc-link"
+            >
+              {{ section.title }}
+            </a>
+          </template>
+
+          <template v-else-if="activePage === 'Installation'">
+            <a href="#installation-prerequisites" class="toc-link">Prerequisites</a>
+            <a href="#installation-install" class="toc-link">Install AVSS Lite</a>
+            <a href="#installation-verify" class="toc-link">Verify Installation</a>
+            <a href="#installation-import" class="toc-link">Import Package</a>
+            <a href="#installation-next" class="toc-link">Next Steps</a>
+          </template>
+
+          <template v-else-if="activePage === 'Quick Start'">
+  <a href="#quick-start-overview" class="toc-link">Overview</a>
+  <a href="#quick-start-requirements" class="toc-link">Requirements</a>
+  <a href="#quick-start-install" class="toc-link">Install AVSS Lite</a>
+  <a href="#quick-start-import" class="toc-link">Import Toolkit</a>
+  <a href="#quick-start-validation" class="toc-link">Input Validation</a>
+  <a href="#quick-start-security" class="toc-link">Security Setup</a>
+  <a href="#quick-start-logger" class="toc-link">Logger</a>
+  <a href="#quick-start-run" class="toc-link">Run Application</a>
+  <a href="#quick-start-next" class="toc-link">Next Step</a>
+</template>
+
+          <template v-else-if="activePage === 'Architecture'">
+            <a href="#architecture-overview" class="toc-link">Overview</a>
+            <a href="#architecture-core" class="toc-link">Core Technology Stack</a>
+            <a href="#architecture-frameworks" class="toc-link">Framework Compatibility</a>
+            <a href="#architecture-modules" class="toc-link">Modular Architecture</a>
+            <a href="#architecture-tooling" class="toc-link">Development Tooling</a>
+          </template>
+
+          <template v-else-if="activePage === 'Configuration'">
+            <a href="#configuration-overview" class="toc-link">Overview</a>
+            <a href="#configuration-environment" class="toc-link">Environment Variables</a>
+            <a href="#configuration-security" class="toc-link">Security Configuration</a>
+            <a href="#configuration-initialization" class="toc-link">Security Initialization</a>
+            <a href="#configuration-database" class="toc-link">Prisma Client</a>
+            <a href="#configuration-next" class="toc-link">Next Step</a>
+          </template>
+
+          <span v-else class="toc-empty">
+  No sections available yet.
+</span>
+        </div>
+
+        <div class="right-sidebar-bottom">
+          <div class="help-card">
+            <span class="help-icon">âœ³</span>
+            <strong>Security first.</strong>
+            <p>Build with security in mind from the beginning.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</template>
+
+
+
+
+
+
